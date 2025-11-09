@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Korean Name Generator (vFinal-EN)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', 'Noto Sans KR', sans-serif;
+        }
+        /* Noto Sans KR 폰트를 한글에만 적용 */
+        .korean-name {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold">Korean Name Generator</h1>
+            <p class="text-gray-600 mt-2">Get 3 natural Korean name recommendations based on your name.</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Input Area -->
+            <div class="w-full md:w-1/3 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Enter Your Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" id="lastName" placeholder="e.g., Anderson" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" id="firstName" placeholder="e.g., Emily" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="meaning" class="block text-sm font-medium text-gray-700">Meaning of Name (Optional)</label>
+                        <input type="text" id="meaning" placeholder="e.g., peace, light, wisdom" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                    <button onclick="recommendName()" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Get Korean Names
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Area -->
+            <div id="resultArea" class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function getKoreanLastName(foreignLastName) {
+        if (!foreignLastName) return { "name": "김", "basis": "No last name was entered, so we used '김' (Kim), the most common Korean last name." };
+        const name = foreignLastName.toLowerCase();
+        const firstChar = name.charAt(0);
+
+        const vowels = ["a", "e", "i", "o", "u"];
+        if (vowels.includes(firstChar)) {
+            const vowelLastNames = ["이", "안", "오", "우", "임", "여"];
+            const selectedLastName = vowelLastNames[Math.floor(Math.random() * vowelLastNames.length)];
+            const basis = `Used the Korean last name '${selectedLastName}', which starts with a vowel sound similar to '${foreignLastName.charAt(0).toUpperCase()}'.`;
+            return { name: selectedLastName, basis: basis };
+        }
+
+        const consonantMap = {
+            'g': { kor: 'ㄱ', names: ['강', '고', '구', '권', '공'] },
+            'n': { kor: 'ㄴ', names: ['나', '남', '노'] },
+            'd': { kor: 'ㄷ', names: ['도', '동'] },
+            'r': { kor: 'ㄹ', names: ['류', '라'] },
+            'l': { kor: 'ㄹ', names: ['류', '라'] },
+            'm': { kor: 'ㅁ', names: ['마', '문', '민', '맹'] },
+            'b': { kor: 'ㅂ', names: ['박', '방', '배', '백', '반'] },
+            'p': { kor: 'ㅂ', names: ['박', '방', '배', '백', '반'] },
+            's': { kor: 'ㅅ', names: ['서', '성', '송', '신', '심', '석'] },
+            'j': { kor: 'ㅈ', names: ['장', '정', '조', '주', '전', '지'] },
+            'c': { kor: 'ㅊ', names: ['최', '채', '추'] },
+            'k': { kor: 'ㅋ', names: ['강', '고', '구', '권', '공'] },
+            't': { kor: 'ㅌ', names: ['태'] },
+            'h': { kor: 'ㅎ', names: ['한', '허', '홍', '황', '현'] }
+        };
+
+        if (consonantMap[firstChar]) {
+            const match = consonantMap[firstChar];
+            const selectedLastName = match.names[Math.floor(Math.random() * match.names.length)];
+            const basis = `Used the Korean last name '${selectedLastName}', which starts with the consonant '${match.kor}', similar to '${foreignLastName.charAt(0).toUpperCase()}'.`;
+            return { name: selectedLastName, basis: basis };
+        }
+
+        return { name: "김", basis: `It was difficult to find a Korean last name similar to '${foreignLastName}', so we used '김' (Kim), the most common one.` };
+    }
+
+    function transliterateFirstName(name) {
+        if (!name) return "";
+        name = name.toLowerCase().split(' ')[0];
+        const map = {
+            "emily": "에밀", "dorian": "도", "maeve": "메", "minh": "민", "john": "존", "paul": "폴", "jean": "진",
+            "chris": "크리", "anna": "안", "lucy": "루", "luke": "루크", "james": "제이",
+            "david": "데이", "daniel": "대니", "mi": "미", "ma": "마", "jo": "조", "ki": "기", "pa": "파"
+        };
+        const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
+        for (const key of sortedKeys) {
+            if (name.startsWith(key)) {
+                return map[key];
+            }
+        }
+        return "";
+    }
+
+    function recommendName() {
+        const lastNameInput = document.getElementById('lastName').value.trim();
+        const firstNameInput = document.getElementById('firstName').value.trim();
+        const meaningInput = document.getElementById('meaning').value.trim();
+        const resultArea = document.getElementById('resultArea');
+
+        resultArea.innerHTML = '';
+
+        if (!lastNameInput || !firstNameInput) {
+            alert("Please enter both first and last names.");
+            return;
+        }
+
+        const { name: koreanLastName, basis: lastNameBasis } = getKoreanLastName(lastNameInput);
+        const firstSyllable = transliterateFirstName(firstNameInput);
+
+        const recommendations = [];
+        const popularNames = ['민준', '서준', '도윤', '시우', '지호', '서연', '하윤', '지아', '서아', '하은'];
+        const shuffledPopularNames = popularNames.sort(() => 0.5 - Math.random());
+
+        // Recommendation 1: Transliteration-based or Alternative
+        if (firstSyllable) {
+            const endings = ['준', '호', '진', '윤', '서', '아', '우', '솔'];
+            const secondSyllable = endings[Math.floor(Math.random() * endings.length)];
+            recommendations.push({
+                name: koreanLastName + firstSyllable + secondSyllable,
+                basis: `${lastNameBasis}<br>We created a two-syllable name by adding the syllable '${secondSyllable}' to '${firstSyllable}', which sounds like your name '${firstNameInput.split(' ')[0]}'.`,
+                meaning: `A name that preserves the sound of your original name while adding a Korean touch.`
+            });
+        } else {
+            recommendations.push({
+                name: koreanLastName + shuffledPopularNames.pop(),
+                basis: `${lastNameBasis}<br>It was hard to convert the sound of your name, so we recommended a popular Korean name instead.`,
+                meaning: 'A stylish and easy-to-pronounce name.'
+            });
+        }
+
+        // Recommendation 2: Trendy Name
+        recommendations.push({
+            name: koreanLastName + shuffledPopularNames.pop(),
+            basis: `${lastNameBasis}<br>We combined it with a modern and popular two-syllable name in Korea.`,
+            meaning: 'A stylish and easy-to-pronounce name.'
+        });
+
+        // Recommendation 3: Meaning-based, Creative, or Alternative
+        let meaningBasedName = {};
+        if (meaningInput.includes('light')) {
+            meaningBasedName = { name: koreanLastName + '소민', basis: `${lastNameBasis}<br>Reflecting the user-provided meaning '${meaningInput}'.`, meaning: 'A two-syllable name using the characters for \'bright\' (昭) and \'people\' (民).' };
+        } else if (firstSyllable) {
+            const creativeEndings = ['슬', '찬', '솔', '봄', '결', '윤'];
+            const randomCreativeEnding = creativeEndings[Math.floor(Math.random() * creativeEndings.length)];
+            meaningBasedName = { 
+                name: koreanLastName + firstSyllable + randomCreativeEnding, 
+                basis: `${lastNameBasis}<br>We added the creative syllable '${randomCreativeEnding}' to the sound '${firstSyllable}'.`, 
+                meaning: `A creative two-syllable name that adds a unique feel to the '${firstSyllable}' sound.` 
+            };
+        } else {
+             meaningBasedName = {
+                name: koreanLastName + shuffledPopularNames.pop(),
+                basis: `${lastNameBasis}<br>No meaning was provided and the name was hard to transliterate, so we recommended another popular Korean name.`,
+                meaning: 'A stylish and easy-to-pronounce name.'
+            };
+        }
+        recommendations.push(meaningBasedName);
+
+        recommendations.forEach(rec => displayResult(rec.name, rec.basis, rec.meaning));
+    }
+
+    function displayResult(name, basis, meaning) {
+        const resultArea = document.getElementById('resultArea');
+        const card = document.createElement('div');
+        card.className = 'bg-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300';
+        card.innerHTML = `
+            <h3 class="text-2xl font-bold text-indigo-600 korean-name">${name}</h3>
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-gray-500">Basis for Name</p>
+                <p class="text-gray-800">${basis}</p>
+            </div>
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-gray-500">Meaning of Name</p>
+                <p class="text-gray-800">${meaning}</p>
+            </div>
+        `;
+        resultArea.appendChild(card);
+    }
+
+    window.onload = function() {
+        try {
+            document.getElementById('lastName').value = 'Anderson';
+            document.getElementById('firstName').value = 'Emily';
+            document.getElementById('meaning').value = '';
+            recommendName();
+        } catch (e) {
+            console.error("An error occurred on page load:", e);
+        }
+    };
+
+    </script>
+
+</body>
+</html>
